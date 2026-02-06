@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# As Human Being (AHB)
 
-## Getting Started
+> AI 시대에 인간만이 줄 수 있는 영감을 연결하는 플랫폼
 
-First, run the development server:
+AI가 실행과 생산을 담당하는 시대, 인간 고유의 가치인 **영감(Inspiration)**을 주고받는 공간입니다.
+
+## 주요 기능
+
+- **영감 기록** - 텍스트, 이미지 URL, 링크로 영감 포스팅
+- **영감 탐색** - 피드 형태로 다른 사람의 영감 탐색 및 검색
+- **상호작용** - 공감(Resonate), 댓글, 북마크 기능
+- **알림** - 실시간 알림 (공감, 댓글, 북마크)
+- **AI 기능** - 자동 태그 추천, 영감 요약, 개인화 추천
+
+## 기술 스택
+
+- **Frontend**: Next.js 16 (App Router), TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Backend/DB**: Supabase (PostgreSQL + Auth + Realtime)
+- **AI**: Claude API (Anthropic)
+
+## 시작하기
+
+### 1. 의존성 설치
+
+```bash
+npm install
+```
+
+### 2. 환경 변수 설정
+
+`.env.local` 파일 생성:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+ANTHROPIC_API_KEY=your_anthropic_api_key  # AI 기능용 (선택)
+```
+
+### 3. 개발 서버 실행
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 에서 확인
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. 시드 데이터 (선택)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx tsx scripts/seed.ts
+```
 
-## Learn More
+## 프로젝트 구조
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/               # API 라우트
+│   │   ├── recommendations/  # 개인화 추천
+│   │   ├── suggest-tags/     # AI 태그 추천
+│   │   └── summarize/        # AI 요약
+│   ├── explore/           # 탐색 페이지
+│   ├── inspiration/[id]/  # 영감 상세
+│   ├── login/             # 로그인
+│   ├── new/               # 새 영감 작성
+│   ├── profile/           # 프로필
+│   └── signup/            # 회원가입
+├── components/            # 컴포넌트
+│   ├── ui/               # shadcn/ui 컴포넌트
+│   ├── header.tsx        # 헤더
+│   └── notifications.tsx # 알림
+└── lib/                   # 유틸리티
+    └── supabase/         # Supabase 클라이언트
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 데이터베이스 스키마
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `profiles` - 사용자 프로필
+- `inspirations` - 영감 게시물
+- `comments` - 댓글
+- `resonates` - 공감
+- `bookmarks` - 북마크
+- `notifications` - 알림
 
-## Deploy on Vercel
+## 라이선스
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
