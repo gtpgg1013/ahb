@@ -13,11 +13,12 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-bold tracking-tight">
-            As Human Being
+            <span className="hidden sm:inline">As Human Being</span>
+            <span className="sm:hidden">AHB</span>
           </span>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-2 sm:gap-4">
           <Link
             href="/explore"
             className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -26,23 +27,26 @@ export function Header() {
           </Link>
 
           {!isLoaded ? (
-            <div className="h-8 w-20 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+            <div className="h-8 w-16 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
           ) : isSignedIn ? (
             <>
               <Link
                 href="/profile"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                className="hidden text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 sm:block"
               >
                 내 글
               </Link>
               <Link
                 href="/profile?tab=bookmarks"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                className="hidden text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 sm:block"
               >
                 저장함
               </Link>
-              <Button size="sm" asChild>
-                <Link href="/new">+ 새 영감</Link>
+              <Button size="sm" asChild className="text-xs sm:text-sm">
+                <Link href="/new">
+                  <span className="hidden sm:inline">+ 새 영감</span>
+                  <span className="sm:hidden">+</span>
+                </Link>
               </Button>
               <Notifications userId={user.id} />
               <UserButton

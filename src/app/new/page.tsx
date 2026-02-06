@@ -30,18 +30,11 @@ export default function NewInspirationPage() {
       if (!user) return;
 
       const supabase = createClient();
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .single();
-
-      if (!existingProfile) {
-        await supabase.from("profiles").insert({
-          id: user.id,
-          display_name: user.fullName || user.firstName || "익명",
-        });
-      }
+      // Upsert to update name changes from Clerk
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        display_name: user.fullName || user.firstName || "익명",
+      }, { onConflict: "id" });
       setProfileReady(true);
     };
 

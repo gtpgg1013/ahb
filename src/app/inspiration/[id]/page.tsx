@@ -67,21 +67,13 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
     const syncProfileAndFetch = async () => {
       if (!isLoaded) return;
 
-      // Sync Clerk user to Supabase profiles if logged in
+      // Sync Clerk user to Supabase profiles (upsert to update name changes)
       if (user) {
         const supabase = createClient();
-        const { data: existingProfile } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("id", user.id)
-          .single();
-
-        if (!existingProfile) {
-          await supabase.from("profiles").insert({
-            id: user.id,
-            display_name: user.fullName || user.firstName || "익명",
-          });
-        }
+        await supabase.from("profiles").upsert({
+          id: user.id,
+          display_name: user.fullName || user.firstName || "익명",
+        }, { onConflict: "id" });
       }
 
       fetchData();
