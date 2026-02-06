@@ -56,7 +56,12 @@ export function Header() {
                     avatarBox: "h-8 w-8",
                   },
                 }}
-              />
+              >
+                <UserButton.MenuItems>
+                  <UserButton.Link label="내 글" labelIcon={<span>📝</span>} href="/profile" />
+                  <UserButton.Link label="저장함" labelIcon={<span>⭐</span>} href="/profile?tab=bookmarks" />
+                </UserButton.MenuItems>
+              </UserButton>
             </>
           ) : (
             <>
