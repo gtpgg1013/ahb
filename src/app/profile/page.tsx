@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -39,12 +40,21 @@ interface BookmarkedInspiration {
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [inspirations, setInspirations] = useState<Inspiration[]>([]);
   const [bookmarks, setBookmarks] = useState<BookmarkedInspiration[]>([]);
   const [activeTab, setActiveTab] = useState<"inspirations" | "bookmarks">("inspirations");
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ inspirations: 0, totalResonates: 0 });
+
+  // URL 파라미터로 탭 설정
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "bookmarks") {
+      setActiveTab("bookmarks");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (isLoaded && user) {

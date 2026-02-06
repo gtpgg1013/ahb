@@ -29,6 +29,18 @@ export function Header() {
             <div className="h-8 w-20 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
           ) : isSignedIn ? (
             <>
+              <Link
+                href="/profile"
+                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              >
+                내 글
+              </Link>
+              <Link
+                href="/profile?tab=bookmarks"
+                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              >
+                저장함
+              </Link>
               <Button size="sm" asChild>
                 <Link href="/new">+ 새 영감</Link>
               </Button>
