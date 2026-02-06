@@ -329,7 +329,9 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
   }
 
   const isOwner = currentUserId === inspiration.user_id;
-  const authorName = inspiration.profiles?.[0]?.display_name || "익명";
+  const authorName = Array.isArray(inspiration.profiles)
+    ? inspiration.profiles[0]?.display_name || "익명"
+    : (inspiration.profiles as { display_name: string | null } | null)?.display_name || "익명";
 
   return (
     <div className="mx-auto max-w-2xl py-8">
@@ -507,13 +509,19 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
               <div key={comment.id} className="flex gap-3">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="text-sm">
-                    {getInitial(comment.profiles?.[0]?.display_name)}
+                    {getInitial(
+                      Array.isArray(comment.profiles)
+                        ? comment.profiles[0]?.display_name
+                        : (comment.profiles as { display_name: string | null } | null)?.display_name
+                    )}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
-                      {comment.profiles?.[0]?.display_name || "익명"}
+                      {Array.isArray(comment.profiles)
+                        ? comment.profiles[0]?.display_name || "익명"
+                        : (comment.profiles as { display_name: string | null } | null)?.display_name || "익명"}
                     </span>
                     <span className="text-xs text-zinc-500">{formatDate(comment.created_at)}</span>
                   </div>
