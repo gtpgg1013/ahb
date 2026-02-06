@@ -511,8 +511,8 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
                   <AvatarFallback className="text-sm">
                     {getInitial(
                       Array.isArray(comment.profiles)
-                        ? comment.profiles[0]?.display_name
-                        : (comment.profiles as { display_name: string | null } | null)?.display_name
+                        ? comment.profiles[0]?.display_name ?? null
+                        : (comment.profiles as { display_name: string | null } | null)?.display_name ?? null
                     )}
                   </AvatarFallback>
                 </Avatar>
