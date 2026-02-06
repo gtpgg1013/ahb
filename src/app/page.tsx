@@ -4,13 +4,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 
 export const revalidate = 0; // 항상 최신 상태 확인
 
 async function getUser() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+  const { userId } = await auth();
+  return userId;
 }
 
 async function getRecentInspirations() {

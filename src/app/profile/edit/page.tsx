@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [displayName, setDisplayName] = useState("");
@@ -17,18 +19,15 @@ export default function EditProfilePage() {
   const [bio, setBio] = useState("");
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (isLoaded && user) {
+      fetchProfile();
+    }
+  }, [isLoaded, user]);
 
   const fetchProfile = async () => {
+    if (!user) return;
+
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
@@ -39,6 +38,9 @@ export default function EditProfilePage() {
       setDisplayName(profile.display_name || "");
       setUsername(profile.username || "");
       setBio(profile.bio || "");
+    } else {
+      // Set defaults from Clerk user
+      setDisplayName(user.fullName || user.firstName || "");
     }
 
     setLoading(false);
@@ -46,24 +48,19 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+
     setSaving(true);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
     const { error } = await supabase
       .from("profiles")
-      .update({
+      .upsert({
+        id: user.id,
         display_name: displayName.trim() || null,
         username: username.trim() || null,
         bio: bio.trim() || null,
-      })
-      .eq("id", user.id);
+      });
 
     if (error) {
       console.error("Error updating profile:", error);
@@ -75,7 +72,7 @@ export default function EditProfilePage() {
     setSaving(false);
   };
 
-  if (loading) {
+  if (loading || !isLoaded) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <p className="text-zinc-500">불러오는 중...</p>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { koKR } from "@clerk/localizations";
 import "./globals.css";
 import { Header } from "@/components/header";
 
@@ -24,15 +26,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-zinc-50 dark:bg-zinc-950`}
-      >
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          {children}
-        </main>
-      </body>
-    </html>
+    <ClerkProvider localization={koKR}>
+      <html lang="ko">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-zinc-50 dark:bg-zinc-950`}
+        >
+          <Header />
+          <main className="container mx-auto px-4 py-8">
+            {children}
+          </main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

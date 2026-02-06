@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,29 +12,43 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function NewInspirationPage() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
   const [content, setContent] = useState("");
   const [context, setContext] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const [suggestingTags, setSuggestingTags] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
+  const [profileReady, setProfileReady] = useState(false);
 
+  // Sync Clerk user with Supabase profile
   useEffect(() => {
-    const checkUser = async () => {
+    const syncProfile = async () => {
+      if (!user) return;
+
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-        return;
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+
+      if (!existingProfile) {
+        await supabase.from("profiles").insert({
+          id: user.id,
+          display_name: user.fullName || user.firstName || "익명",
+        });
       }
-      setUserId(user.id);
+      setProfileReady(true);
     };
-    checkUser();
-  }, [router]);
+
+    if (isLoaded && user) {
+      syncProfile();
+    }
+  }, [user, isLoaded]);
 
   const addTag = () => {
     const tag = tagInput.trim();
@@ -81,13 +96,13 @@ export default function NewInspirationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !userId) return;
+    if (!content.trim() || !user || !profileReady) return;
 
     setLoading(true);
 
     const supabase = createClient();
     const { error } = await supabase.from("inspirations").insert({
-      user_id: userId,
+      user_id: user.id,
       content: content.trim(),
       context: context.trim() || null,
       tags,
@@ -261,7 +276,7 @@ export default function NewInspirationPage() {
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={loading || !content.trim()}
+                disabled={loading || !content.trim() || !profileReady}
               >
                 {loading ? "저장 중..." : "영감 공유하기"}
               </Button>

@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,10 +35,11 @@ interface Comment {
 export default function InspirationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { user, isLoaded } = useUser();
   const [inspiration, setInspiration] = useState<Inspiration | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const currentUserId = user?.id || null;
 
   // Interactions
   const [isResonated, setIsResonated] = useState(false);
@@ -62,15 +64,13 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
   const [loadingSummary, setLoadingSummary] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, [id]);
+    if (isLoaded) {
+      fetchData();
+    }
+  }, [id, isLoaded, currentUserId]);
 
   const fetchData = async () => {
     const supabase = createClient();
-
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    setCurrentUserId(user?.id || null);
 
     // Fetch inspiration
     const { data: inspirationData, error } = await supabase
@@ -100,12 +100,12 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
     setResonateCount(resonateCountData || 0);
 
     // Check if user has resonated
-    if (user) {
+    if (currentUserId) {
       const { data: userResonate } = await supabase
         .from("resonates")
         .select("id")
         .eq("inspiration_id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", currentUserId)
         .single();
 
       setIsResonated(!!userResonate);
@@ -115,7 +115,7 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
         .from("bookmarks")
         .select("id")
         .eq("inspiration_id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", currentUserId)
         .single();
 
       setIsBookmarked(!!userBookmark);

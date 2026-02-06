@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,7 @@ interface BookmarkedInspiration {
 }
 
 export default function ProfilePage() {
-  const router = useRouter();
+  const { user, isLoaded } = useUser();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [inspirations, setInspirations] = useState<Inspiration[]>([]);
   const [bookmarks, setBookmarks] = useState<BookmarkedInspiration[]>([]);
@@ -47,19 +47,17 @@ export default function ProfilePage() {
   const [stats, setStats] = useState({ inspirations: 0, totalResonates: 0 });
 
   useEffect(() => {
-    fetchProfileData();
-  }, []);
+    if (isLoaded && user) {
+      fetchProfileData();
+    }
+  }, [isLoaded, user]);
 
   const fetchProfileData = async () => {
+    if (!user) return;
+
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    // Fetch profile
+    // Sync/create profile if needed
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
@@ -68,6 +66,17 @@ export default function ProfilePage() {
 
     if (profileData) {
       setProfile(profileData);
+    } else {
+      // Create profile if doesn't exist
+      const newProfile = {
+        id: user.id,
+        display_name: user.fullName || user.firstName || "익명",
+        bio: null,
+        username: null,
+        avatar_url: user.imageUrl,
+      };
+      await supabase.from("profiles").insert(newProfile);
+      setProfile(newProfile as Profile);
     }
 
     // Fetch user's inspirations
@@ -81,7 +90,7 @@ export default function ProfilePage() {
         created_at,
         resonates (count)
       `)
-      .eq("user_id", user.id)
+      .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
 
     if (inspirationsData) {
@@ -109,7 +118,7 @@ export default function ProfilePage() {
           resonates (count)
         )
       `)
-      .eq("user_id", user.id)
+      .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
 
     if (bookmarksData) {
