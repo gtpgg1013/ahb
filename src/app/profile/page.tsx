@@ -292,17 +292,22 @@ function ProfileContent() {
               </Button>
             </div>
           ) : (
-            bookmarks.map((bookmark) => (
+            bookmarks.map((bookmark) => {
+              const bookmarkProfiles = bookmark.inspiration.profiles;
+              const bookmarkAuthor = Array.isArray(bookmarkProfiles)
+                ? bookmarkProfiles[0]?.display_name
+                : (bookmarkProfiles as { display_name: string | null } | null)?.display_name;
+              return (
               <Link href={`/inspiration/${bookmark.inspiration.id}`} key={bookmark.id}>
                 <Card className="transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-3 pb-2">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback>
-                        {getInitial(bookmark.inspiration.profiles?.[0]?.display_name)}
+                        {getInitial(bookmarkAuthor ?? null)}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-medium">
-                      {bookmark.inspiration.profiles?.[0]?.display_name || "익명"}
+                      {bookmarkAuthor || "익명"}
                     </span>
                   </CardHeader>
                   <CardContent>
@@ -324,7 +329,8 @@ function ProfileContent() {
                   </CardContent>
                 </Card>
               </Link>
-            ))
+              );
+            })
           )}
         </div>
       )}
