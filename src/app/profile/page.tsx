@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -38,7 +38,7 @@ interface BookmarkedInspiration {
   };
 }
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { user, isLoaded } = useUser();
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -329,5 +329,13 @@ export default function ProfilePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center"><p className="text-zinc-500">불러오는 중...</p></div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }
