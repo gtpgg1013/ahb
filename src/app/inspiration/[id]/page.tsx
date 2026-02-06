@@ -64,10 +64,31 @@ export default function InspirationDetailPage({ params }: { params: Promise<{ id
   const [loadingSummary, setLoadingSummary] = useState(false);
 
   useEffect(() => {
-    if (isLoaded) {
+    const syncProfileAndFetch = async () => {
+      if (!isLoaded) return;
+
+      // Sync Clerk user to Supabase profiles if logged in
+      if (user) {
+        const supabase = createClient();
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", user.id)
+          .single();
+
+        if (!existingProfile) {
+          await supabase.from("profiles").insert({
+            id: user.id,
+            display_name: user.fullName || user.firstName || "익명",
+          });
+        }
+      }
+
       fetchData();
-    }
-  }, [id, isLoaded, currentUserId]);
+    };
+
+    syncProfileAndFetch();
+  }, [id, isLoaded, user]);
 
   const fetchData = async () => {
     const supabase = createClient();
