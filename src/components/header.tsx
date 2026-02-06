@@ -13,8 +13,7 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-bold tracking-tight">
-            <span className="hidden sm:inline">As Human Being</span>
-            <span className="sm:hidden">AHB</span>
+            As Human Being
           </span>
         </Link>
 

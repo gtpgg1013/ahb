@@ -4,6 +4,11 @@
 
 AI가 실행과 생산을 담당하는 시대, 인간 고유의 가치인 **영감(Inspiration)**을 주고받는 공간입니다.
 
+## 배포
+
+- **Production**: https://ahb-ten.vercel.app
+- **GitHub**: https://github.com/gtpgg1013/ahb
+
 ## 주요 기능
 
 - **영감 기록** - 텍스트, 이미지 URL, 링크로 영감 포스팅
@@ -16,8 +21,10 @@ AI가 실행과 생산을 담당하는 시대, 인간 고유의 가치인 **영�
 
 - **Frontend**: Next.js 16 (App Router), TypeScript
 - **Styling**: Tailwind CSS, shadcn/ui
-- **Backend/DB**: Supabase (PostgreSQL + Auth + Realtime)
+- **Auth**: Clerk (Google OAuth 지원)
+- **Database**: Supabase (PostgreSQL)
 - **AI**: Claude API (Anthropic)
+- **Deployment**: Vercel
 
 ## 시작하기
 
@@ -32,10 +39,17 @@ npm install
 `.env.local` 파일 생성:
 
 ```env
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-ANTHROPIC_API_KEY=your_anthropic_api_key  # AI 기능용 (선택)
+
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+# Claude API (AI 기능용)
+ANTHROPIC_API_KEY=your_anthropic_api_key
 ```
 
 ### 3. 개발 서버 실행
@@ -49,7 +63,7 @@ http://localhost:3000 에서 확인
 ### 4. 시드 데이터 (선택)
 
 ```bash
-npx tsx scripts/seed.ts
+node scripts/seed-real.js
 ```
 
 ## 프로젝트 구조
@@ -63,21 +77,26 @@ src/
 │   │   └── summarize/        # AI 요약
 │   ├── explore/           # 탐색 페이지
 │   ├── inspiration/[id]/  # 영감 상세
-│   ├── login/             # 로그인
+│   ├── login/             # 로그인 (Clerk)
 │   ├── new/               # 새 영감 작성
-│   ├── profile/           # 프로필
-│   └── signup/            # 회원가입
+│   ├── profile/           # 프로필 (내 글, 저장함)
+│   └── signup/            # 회원가입 (Clerk)
 ├── components/            # 컴포넌트
 │   ├── ui/               # shadcn/ui 컴포넌트
-│   ├── header.tsx        # 헤더
+│   ├── header.tsx        # 헤더 (반응형)
 │   └── notifications.tsx # 알림
 └── lib/                   # 유틸리티
     └── supabase/         # Supabase 클라이언트
+
+supabase/
+├── schema.sql            # 데이터베이스 스키마
+└── migrations/           # 마이그레이션 파일
+    └── clerk_migration.sql  # Clerk 연동 마이그레이션
 ```
 
 ## 데이터베이스 스키마
 
-- `profiles` - 사용자 프로필
+- `profiles` - 사용자 프로필 (Clerk 연동)
 - `inspirations` - 영감 게시물
 - `comments` - 댓글
 - `resonates` - 공감
